@@ -19,7 +19,9 @@ namespace GoldClub.Controllers
         public IActionResult GenerarAlerta() => View();
         public IActionResult VerificarDocumentos() => View();
         public IActionResult CrearProducto() => View();
-        
+        public IActionResult Productos() => View();
+        public IActionResult EditarProducto(int id) => View();
+        public IActionResult DashboardProductos() => View();
     }
 
     public class DocumentosController : Controller

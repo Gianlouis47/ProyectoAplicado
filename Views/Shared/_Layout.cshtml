@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-    @if (ViewData["HideNav"] == null || !(bool)ViewData["HideNav"])
+    @if (ViewData["HideNav"] == null || !(bool?)ViewData["HideNav"] != false)
     {
         <nav class="navbar">
             <a class="navbar-brand" href="/Home/Dashboard">
@@ -53,7 +53,6 @@
 
     @RenderBody()
 
-    <!-- Modal: Confirmar cerrar sesión -->
     <div class="modal-overlay" id="modalCerrarConfirm">
         <div class="modal-box">
             <div class="modal-brand">
@@ -68,7 +67,6 @@
         </div>
     </div>
 
-    <!-- Modal: Sesión cerrada -->
     <div class="modal-overlay" id="modalCerradoOk">
         <div class="modal-box">
             <div class="modal-brand">

@@ -1,66 +1,50 @@
 @{
-    ViewData["Title"] = "Crear Producto";
+    ViewData["Title"] = "Editar Producto";
     ViewData["NavActive"] = "inventario";
 }
 
 <div class="main-content">
-    <h1 class="page-title">Crear nuevo producto</h1>
+    <h1 class="page-title">Editar producto</h1>
 
     <div class="card card-gold" style="max-width:780px">
         <div class="section-heading" style="margin-top:0">Datos del Producto</div>
 
         <form id="formProducto" novalidate>
             
+            <input type="hidden" id="productoId" />
+
             <div class="form-group form-vertical">
                 <label>Nombre del producto:</label>
-                <input class="form-control" type="text" id="nombre" placeholder="Ej: Ron Barceló Imperial 750ml" required maxlength="150">
+                <input class="form-control" type="text" id="nombre" required maxlength="150">
                 <div class="field-error" id="err-nombre">El nombre es obligatorio</div>
             </div>
 
             <div class="form-group form-vertical" id="grupo-sku">
                 <label>Código del producto (SKU):</label>
-                <div class="sku-options">
-                    <label><input type="radio" name="skuTipo" value="manual" checked onchange="cambiarTipoSku()"> Manual</label>
-                    <label><input type="radio" name="skuTipo" value="auto" onchange="cambiarTipoSku()"> Generar por categoría</label>
-                </div>
-                <div id="sku-manual">
-                    <input class="form-control" type="text" id="codigoSkuManual" placeholder="Ej: RON-0001 (sin espacios)" maxlength="20" style="text-transform:uppercase;">
-                </div>
-                <div id="sku-auto" style="display:none; align-items:center; gap:0.5rem;">
-                    <select class="form-control" id="categoriaParaSku" style="max-width:220px;">
-                        <option value="">-- Seleccionar categoría --</option>
-                        <option value="BEB">Bebidas</option>
-                        <option value="LIM">Limpieza</option>
-                        <option value="ALI">Alimentos</option>
-                        <option value="PAP">Papelería</option>
-                        <option value="ELE">Electrónica</option>
-                    </select>
-                    <button type="button" class="btn btn-gold" style="padding:0.4rem 0.8rem; font-size:0.85rem;" onclick="generarSku()">Generar</button>
-                    <input class="form-control" type="text" id="codigoSkuAuto" readonly placeholder="Se generará aquí" style="flex:1; background:#1a1a2e;">
-                </div>
-                <div class="field-error" id="err-sku">El código es obligatorio y no debe tener espacios</div>
+                <input class="form-control" type="text" id="codigoSku" maxlength="20" style="text-transform:uppercase; max-width:220px;" readonly>
+                <span class="text-muted" style="font-size:12px; margin-top:4px;">El código SKU no se puede modificar después de creado.</span>
             </div>
 
             <div class="form-row">
                 <div class="form-group form-vertical">
                     <label>Marca:</label>
-                    <input class="form-control" type="text" id="marca" placeholder="Ej: Barceló" maxlength="100">
+                    <input class="form-control" type="text" id="marca" maxlength="100">
                 </div>
                 <div class="form-group form-vertical">
                     <label>Modelo:</label>
-                    <input class="form-control" type="text" id="modelo" placeholder="Ej: Imperial, Extra Viejo" maxlength="100">
+                    <input class="form-control" type="text" id="modelo" maxlength="100">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group form-vertical">
                     <label>Precio de compra (RD$):</label>
-                    <input class="form-control" type="number" id="precioCompra" placeholder="0.00" min="0" step="0.01" required>
+                    <input class="form-control" type="number" id="precioCompra" min="0" step="0.01" required>
                     <div class="field-error" id="err-compra">Ingresa un precio válido</div>
                 </div>
                 <div class="form-group form-vertical">
                     <label>Precio de venta (RD$):</label>
-                    <input class="form-control" type="number" id="precioVenta" placeholder="0.00" min="0" step="0.01" required>
+                    <input class="form-control" type="number" id="precioVenta" min="0" step="0.01" required>
                     <div class="field-error" id="err-venta">Ingresa un precio válido</div>
                     <div class="margen-indicator" id="margenBox" style="display:none;">
                         Margen: <span class="margen-pct" id="margenPct">0%</span>
@@ -72,7 +56,7 @@
             <div class="form-row">
                 <div class="form-group form-vertical">
                     <label>Stock mínimo (alerta):</label>
-                    <input class="form-control" type="number" id="stockMinimo" placeholder="10" min="0" step="1" value="10" required>
+                    <input class="form-control" type="number" id="stockMinimo" min="0" step="1" required>
                 </div>
                 <div class="form-group form-vertical">
                     <label>Unidad de medida:</label>
@@ -92,44 +76,37 @@
                     <label>Categoría:</label>
                     <select class="form-control" id="categoria">
                         <option value="">-- Sin categoría --</option>
-                        <option value="1">Bebidas</option>
-                        <option value="2">Limpieza</option>
-                        <option value="3">Alimentos</option>
-                        <option value="4">Papelería</option>
-                        <option value="5">Electrónica</option>
                     </select>
                 </div>
                 <div class="form-group form-vertical">
                     <label>Proveedor:</label>
                     <select class="form-control" id="proveedor">
                         <option value="">-- Sin proveedor --</option>
-                        <option value="1">Distribuidora Nacional</option>
-                        <option value="2">Importadora del Este</option>
-                        <option value="3">Bebidas del Caribe</option>
                     </select>
                 </div>
             </div>
 
             <div class="form-group form-vertical">
-                <label>Creado por:</label>
-                <input class="form-control" type="text" id="creadoPor" value="Juan Pérez" readonly>
+                <label>Stock actual:</label>
+                <input class="form-control" type="number" id="stockActual" readonly style="max-width:120px; background:#1a1a2e;">
+                <span class="text-muted" style="font-size:12px; margin-top:4px;">El stock se modifica registrando entradas o salidas.</span>
             </div>
 
             <div class="btn-group-actions" style="margin-top:20px;">
-                <button type="button" class="btn btn-outline" onclick="limpiarForm()">Limpiar</button>
-                <button type="submit" class="btn btn-gold" id="btnConfirmar">Confirmar</button>
+                <a href="/Inventario/Productos" class="btn btn-outline">Cancelar</a>
+                <button type="submit" class="btn btn-gold" id="btnConfirmar">Actualizar Producto</button>
             </div>
         </form>
     </div>
 </div>
 
-<div class="modal-overlay" id="modalRegistrado">
+<div class="modal-overlay" id="modalActualizado">
     <div class="modal-box">
         <div class="modal-brand">
             <svg width="20" height="20" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#2c2c2c" stroke="#D4A017" stroke-width="2"/><text x="22" y="27" text-anchor="middle" font-size="14" font-weight="bold" fill="#D4A017" font-family="serif">G</text></svg>
             Gold Club
         </div>
-        <div class="modal-message" id="msgExito">Se ha creado con éxito el producto.</div>
+        <div class="modal-message" id="msgExito">Producto actualizado correctamente.</div>
         <div class="modal-actions">
             <a class="btn btn-gold" href="/Inventario/Productos">✔️ Aceptar</a>
         </div>
@@ -143,7 +120,7 @@
             Gold Club
         </div>
         <div class="modal-icon-error">▲ ERROR</div>
-        <div class="modal-message" id="msgError">Debe completar todos los campos antes de confirmar.</div>
+        <div class="modal-message" id="msgError">Corrige los campos marcados en rojo.</div>
         <div class="modal-actions">
             <button class="btn btn-gold" onclick="hideModal('modalErrorCampos')">✔️ Aceptar</button>
         </div>
@@ -153,12 +130,54 @@
 @section Scripts {
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-
     const precioCompra = document.getElementById('precioCompra');
     const precioVenta = document.getElementById('precioVenta');
     const margenBox = document.getElementById('margenBox');
     const margenPct = document.getElementById('margenPct');
     const margenMonto = document.getElementById('margenMonto');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id') || window.location.pathname.split('/').pop();
+
+    document.getElementById('productoId').value = id;
+
+    fetch('/Inventario/EditarProducto/' + id)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('nombre').value = data.nombre || '';
+            document.getElementById('codigoSku').value = data.codigoSku || '';
+            document.getElementById('marca').value = data.marca || '';
+            document.getElementById('modelo').value = data.modelo || '';
+            document.getElementById('precioCompra').value = data.precioCompra || 0;
+            document.getElementById('precioVenta').value = data.precioVenta || 0;
+            document.getElementById('stockMinimo').value = data.stockMinimo || 0;
+            document.getElementById('stockActual').value = data.stock || 0;
+            document.getElementById('unidadMedida').value = data.unidadMedida || 'UN';
+            calcularMargen();
+
+            if (data.categorias) {
+                const catSelect = document.getElementById('categoria');
+                data.categorias.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.nombre;
+                    if (c.id == data.categoriaId) opt.selected = true;
+                    catSelect.appendChild(opt);
+                });
+            }
+
+            if (data.proveedores) {
+                const provSelect = document.getElementById('proveedor');
+                data.proveedores.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.nombreEmpresa;
+                    if (p.id == data.proveedorId) opt.selected = true;
+                    provSelect.appendChild(opt);
+                });
+            }
+        })
+        .catch(() => {});
 
     function calcularMargen() {
         const compra = parseFloat(precioCompra.value);
@@ -188,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
     precioCompra.addEventListener('input', calcularMargen);
     precioVenta.addEventListener('input', calcularMargen);
 
-    ['nombre', 'codigoSkuManual', 'precioCompra', 'precioVenta'].forEach(id => {
-        const el = document.getElementById(id);
+    ['nombre', 'precioCompra', 'precioVenta', 'stockMinimo'].forEach(fieldId => {
+        const el = document.getElementById(fieldId);
         if (el) {
             el.addEventListener('input', () => {
                 el.closest('.form-group').classList.remove('has-error');
@@ -199,32 +218,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('formProducto').addEventListener('submit', (e) => {
         e.preventDefault();
-        
         let hayError = false;
 
         const nombre = document.getElementById('nombre');
         if (!nombre.value.trim()) {
             nombre.closest('.form-group').classList.add('has-error');
             hayError = true;
-        }
-
-        const skuTipo = document.querySelector('input[name="skuTipo"]:checked').value;
-        let skuValor = '';
-        
-        if (skuTipo === 'manual') {
-            skuValor = document.getElementById('codigoSkuManual').value.trim();
-            if (!skuValor || skuValor.includes(' ')) {
-                document.getElementById('grupo-sku').classList.add('has-error');
-                document.getElementById('err-sku').textContent = 'El código es obligatorio y no debe tener espacios';
-                hayError = true;
-            }
-        } else {
-            skuValor = document.getElementById('codigoSkuAuto').value.trim();
-            if (!skuValor) {
-                document.getElementById('grupo-sku').classList.add('has-error');
-                document.getElementById('err-sku').textContent = 'Haz clic en "Generar" para crear el código';
-                hayError = true;
-            }
         }
 
         const compra = parseFloat(precioCompra.value);
@@ -246,47 +245,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (hayError) {
-            document.getElementById('msgError').textContent = 'Corrige los campos marcados en rojo antes de confirmar.';
             showModal('modalErrorCampos');
             return;
         }
 
-    
+        const btn = document.getElementById('btnConfirmar');
+        btn.disabled = true;
+        btn.textContent = 'Actualizando...';
 
-        document.getElementById('msgExito').textContent = 
-            'Se ha creado con éxito el producto "' + nombre.value + '" (' + skuValor.toUpperCase() + ').';
-        
-        showModal('modalRegistrado');
+        fetch('/Inventario/EditarProducto', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: parseInt(document.getElementById('productoId').value),
+                nombre: nombre.value,
+                marca: document.getElementById('marca').value,
+                modelo: document.getElementById('modelo').value,
+                precioCompra: compra,
+                precioVenta: venta,
+                stockMinimo: parseInt(document.getElementById('stockMinimo').value) || 0,
+                unidadMedida: document.getElementById('unidadMedida').value,
+                categoriaId: document.getElementById('categoria').value ? parseInt(document.getElementById('categoria').value) : null,
+                proveedorId: document.getElementById('proveedor').value ? parseInt(document.getElementById('proveedor').value) : null
+            })
+        })
+        .then(res => {
+            if (res.ok) {
+                showModal('modalActualizado');
+            } else {
+                showModal('modalErrorCampos');
+            }
+        })
+        .catch(() => {
+            showModal('modalErrorCampos');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Actualizar Producto';
+        });
     });
 });
-
-function cambiarTipoSku() {
-    const tipo = document.querySelector('input[name="skuTipo"]:checked').value;
-    document.getElementById('sku-manual').style.display = tipo === 'manual' ? 'block' : 'none';
-    document.getElementById('sku-auto').style.display = tipo === 'auto' ? 'flex' : 'none';
-    document.getElementById('grupo-sku').classList.remove('has-error');
-}
-
-function generarSku() {
-    const cat = document.getElementById('categoriaParaSku').value;
-    if (!cat) {
-        document.getElementById('grupo-sku').classList.add('has-error');
-        document.getElementById('err-sku').textContent = 'Selecciona una categoría primero';
-        return;
-    }
-    document.getElementById('grupo-sku').classList.remove('has-error');
-    
-   
-    const random = String(Math.floor(Math.random() * 9000) + 1000);
-    document.getElementById('codigoSkuAuto').value = cat + '-' + random;
-}
-
-function limpiarForm() {
-    document.getElementById('formProducto').reset();
-    document.getElementById('margenBox').style.display = 'none';
-    document.getElementById('codigoSkuAuto').value = '';
-    document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
-    cambiarTipoSku();
-}
 </script>
 }

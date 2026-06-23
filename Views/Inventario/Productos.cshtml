@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Productos";
+    ViewData["NavActive"] = "inventario";
+}
+
+<div class="main-content">
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <h1 class="page-title" style="margin-bottom:0">Productos</h1>
+            <a href="/Inventario/CrearProducto" class="btn btn-gold" style="padding:8px 20px; font-size:13px;">
+                + Nuevo Producto
+            </a>
+        </div>
+        <div class="search-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="buscarProducto" placeholder="Buscar producto..." oninput="filtrarTabla('buscarProducto', 'tablaProductos')">
+        </div>
+    </div>
+
+    <div class="card" style="padding:0; overflow:hidden;">
+        <div class="table-container">
+            <table class="table-products" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>P. Compra</th>
+                        <th>P. Venta</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* 
+                        CUANDO CONECTEN EL MODELO C#, tu reemplaza 
+                        este tbody vacío con un foreach, ejemplo:
+                        
+                        @foreach (var p in Model)
+                        {
+                            <tr data-id="@p.Id">
+                                <td class="text-gold">@p.CodigoSku</td>
+                                <td>@p.Nombre</td>
+                                <td>@p.Categoria</td>
+                                <td class="text-price">RD$ @p.PrecioCompra.ToString("F2")</td>
+                                <td class="text-price">RD$ @p.PrecioVenta.ToString("F2")</td>
+                                <td>@p.Stock</td>
+                                <td>
+                                    @if (p.Stock <= 0) {
+                                        <span class="badge badge-vacio">SIN STOCK</span>
+                                    } else if (p.Stock <= p.StockMinimo) {
+                                        <span class="badge badge-bajo">STOCK BAJO</span>
+                                    } else {
+                                        <span class="badge badge-ok">OK</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-btns">
+                                        <a href="/Inventario/EditarProducto/@p.Id" class="btn-action edit" title="Editar">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </a>
+                                        <button onclick="confirmarEliminar('@p.Nombre', @p.Id)" class="btn-action delete" title="Eliminar">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    *@
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+            <p>No hay productos registrados o no se pudo conectar a la base de datos.</p>
+            <a href="/Inventario/CrearProducto" class="btn btn-gold" style="padding:8px 20px; font-size:13px;">+ Crear primer producto</a>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Confirmar Eliminar -->
+<div class="modal-overlay" id="modalEliminar">
+    <div class="modal-box">
+        <div class="modal-brand">
+            <svg width="20" height="20" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#2c2c2c" stroke="#D4A017" stroke-width="2"/><text x="22" y="27" text-anchor="middle" font-size="14" font-weight="bold" fill="#D4A017" font-family="serif">G</text></svg>
+            Gold Club
+        </div>
+        <div class="modal-icon-error" style="color:var(--danger)">▲ ELIMINAR</div>
+        <div class="modal-message" id="msgEliminar">¿Estás seguro?</div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="hideModal('modalEliminar')" style="border-color:#555; color:var(--text-muted);">Cancelar</button>
+            <button class="btn btn-danger" id="btnConfirmarEliminar" onclick="ejecutarEliminar()" style="background:var(--danger); color:white; border:none;">Sí, eliminar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Eliminado ok -->
+<div class="modal-overlay" id="modalEliminadoOk">
+    <div class="modal-box">
+        <div class="modal-brand">
+            <svg width="20" height="20" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#2c2c2c" stroke="#D4A017" stroke-width="2"/><text x="22" y="27" text-anchor="middle" font-size="14" font-weight="bold" fill="#D4A017" font-family="serif">G</text></svg>
+            Gold Club
+        </div>
+        <div class="modal-message">Producto eliminado correctamente.</div>
+        <div class="modal-actions">
+            <button class="btn btn-gold" onclick="hideModal('modalEliminadoOk')">✔️ Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Error general -->
+<div class="modal-overlay" id="modalErrorGeneral">
+    <div class="modal-box">
+        <div class="modal-brand">
+            <svg width="20" height="20" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#2c2c2c" stroke="#D4A017" stroke-width="2"/><text x="22" y="27" text-anchor="middle" font-size="14" font-weight="bold" fill="#D4A017" font-family="serif">G</text></svg>
+            Gold Club
+        </div>
+        <div class="modal-icon-error">▲ ERROR</div>
+        <div class="modal-message">Ocurrió un error al procesar la solicitud.</div>
+        <div class="modal-actions">
+            <button class="btn btn-gold" onclick="hideModal('modalErrorGeneral')">✔️ Aceptar</button>
+        </div>
+    </div>
+</div>

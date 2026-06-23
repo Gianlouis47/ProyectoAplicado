@@ -1,0 +1,136 @@
+@{
+    ViewData["Title"] = "Dashboard Inventario";
+    ViewData["NavActive"] = "inventario";
+}
+
+<div class="main-content">
+    <div class="flex-between mb-2">
+        <h1 class="page-title" style="margin-bottom:0">Dashboard de Inventario</h1>
+        <a href="/Inventario/CrearProducto" class="btn btn-gold" style="padding:8px 20px; font-size:13px;">+ Nuevo Producto</a>
+    </div>
+
+    <div class="dash-stats">
+        <div class="dash-stat-card success">
+            <div class="dash-stat-number" id="countTotal">0</div>
+            <div class="dash-stat-label">Total Productos</div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="dash-stat-number" id="countOk">0</div>
+            <div class="dash-stat-label">Stock Normal</div>
+        </div>
+        <div class="dash-stat-card warning">
+            <div class="dash-stat-number" id="countBajos">0</div>
+            <div class="dash-stat-label">Stock Bajo</div>
+        </div>
+        <div class="dash-stat-card danger">
+            <div class="dash-stat-number" id="countVacios">0</div>
+            <div class="dash-stat-label">Sin Stock</div>
+        </div>
+    </div>
+
+    <div class="card card-gold mb-2">
+        <div class="flex-between mb-1">
+            <span style="font-weight:600; font-size:14px;">Productos con alertas</span>
+            <select class="filter-select" id="filtroEstado" onchange="filtrarPorEstado(this.value)">
+                <option value="todos">Todos</option>
+                <option value="bajo">Stock bajo</option>
+                <option value="vacio">Sin stock</option>
+            </select>
+        </div>
+
+        <div class="table-container">
+            <table class="table-products" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Stock</th>
+                        <th>Mínimo</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyAlertas">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display:none; padding:30px;">
+            <p>No hay productos con alertas en este momento.</p>
+        </div>
+    </div>
+
+    <div class="section-heading mt-3">Acceso rápido</div>
+    <div class="menu-grid">
+        <a class="menu-card" href="/Inventario/Productos">
+            <svg class="menu-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span class="menu-card-label">Ver todos los productos</span>
+        </a>
+        <a class="menu-card" href="/Inventario/RegistrarEntrada">
+            <svg class="menu-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            <span class="menu-card-label">Registrar entrada</span>
+        </a>
+        <a class="menu-card" href="/Inventario/ConsultarMovimientos">
+            <svg class="menu-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <span class="menu-card-label">Consultar movimientos</span>
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/Inventario/DashboardProductos')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('countTotal').textContent = data.total || 0;
+            document.getElementById('countOk').textContent = data.ok || 0;
+            document.getElementById('countBajos').textContent = data.bajos || 0;
+            document.getElementById('countVacios').textContent = data.vacios || 0;
+
+            const tbody = document.getElementById('tbodyAlertas');
+            const empty = document.getElementById('emptyState');
+
+            if (data.productos && data.productos.length > 0) {
+                tbody.innerHTML = '';
+                data.productos.forEach(p => {
+                    let badge = '<span class="badge badge-ok">OK</span>';
+                    if (p.stock <= 0) badge = '<span class="badge badge-vacio">SIN STOCK</span>';
+                    else if (p.stock <= p.stockMinimo) badge = '<span class="badge badge-bajo">STOCK BAJO</span>';
+
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-id', p.id);
+                    tr.innerHTML = `
+                        <td class="text-gold">${p.codigoSku}</td>
+                        <td>${p.nombre}</td>
+                        <td>${p.stock}</td>
+                        <td>${p.stockMinimo}</td>
+                        <td>${badge}</td>
+                        <td>
+                            <div class="action-btns">
+                                <a href="/Inventario/EditarProducto/${p.id}" class="btn-action edit" title="Editar">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </a>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                empty.style.display = 'none';
+            } else {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+            }
+        })
+        .catch(() => {
+            document.getElementById('emptyState').style.display = 'block';
+        });
+});
+</script>
+}
