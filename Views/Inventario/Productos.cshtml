@@ -1,3 +1,5 @@
+@model IEnumerable<GoldClub.Models.Producto>
+
 @{
     ViewData["Title"] = "Productos";
     ViewData["NavActive"] = "inventario";
@@ -35,25 +37,28 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @* 
-                        CUANDO CONECTEN EL MODELO C#, tu reemplaza 
-                        este tbody vacío con un foreach, ejemplo:
-                        
-                        @foreach (var p in Model)
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var p in Model)
                         {
                             <tr data-id="@p.Id">
                                 <td class="text-gold">@p.CodigoSku</td>
                                 <td>@p.Nombre</td>
-                                <td>@p.Categoria</td>
+                                <td>@(p.Categoria?.Nombre ?? "-")</td>
                                 <td class="text-price">RD$ @p.PrecioCompra.ToString("F2")</td>
                                 <td class="text-price">RD$ @p.PrecioVenta.ToString("F2")</td>
                                 <td>@p.Stock</td>
                                 <td>
-                                    @if (p.Stock <= 0) {
+                                    @if (p.Stock <= 0)
+                                    {
                                         <span class="badge badge-vacio">SIN STOCK</span>
-                                    } else if (p.Stock <= p.StockMinimo) {
+                                    }
+                                    else if (p.Stock <= p.StockMinimo)
+                                    {
                                         <span class="badge badge-bajo">STOCK BAJO</span>
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         <span class="badge badge-ok">OK</span>
                                     }
                                 </td>
@@ -69,23 +74,22 @@
                                 </td>
                             </tr>
                         }
-                    *@
+                    }
                 </tbody>
             </table>
         </div>
 
-        <div class="empty-state" id="emptyState">
+        <div class="empty-state" id="emptyState" style="@(Model != null && Model.Any() ? "display:none;" : "")">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
                 <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
             </svg>
-            <p>No hay productos registrados o no se pudo conectar a la base de datos.</p>
+            <p>No hay productos registrados.</p>
             <a href="/Inventario/CrearProducto" class="btn btn-gold" style="padding:8px 20px; font-size:13px;">+ Crear primer producto</a>
         </div>
     </div>
 </div>
 
-<!-- MODAL: Confirmar Eliminar -->
 <div class="modal-overlay" id="modalEliminar">
     <div class="modal-box">
         <div class="modal-brand">
@@ -101,7 +105,6 @@
     </div>
 </div>
 
-<!-- MODAL: Eliminado ok -->
 <div class="modal-overlay" id="modalEliminadoOk">
     <div class="modal-box">
         <div class="modal-brand">
@@ -110,12 +113,11 @@
         </div>
         <div class="modal-message">Producto eliminado correctamente.</div>
         <div class="modal-actions">
-            <button class="btn btn-gold" onclick="hideModal('modalEliminadoOk')">✔️ Aceptar</button>
+            <button class="btn btn-gold" onclick="location.reload()">✔️ Aceptar</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: Error general -->
 <div class="modal-overlay" id="modalErrorGeneral">
     <div class="modal-box">
         <div class="modal-brand">
